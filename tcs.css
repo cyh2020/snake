@@ -1,0 +1,34 @@
+#app{
+    position: relative;
+    top:50vh;
+    left:50vw;
+    transform:translate(-50%,-50%)
+}
+.r{
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content : center;
+    -webkit-align-content: center;
+    align-content: flex-start;
+}
+
+*{
+    background-color: rgb(236, 233, 255);
+}
+.c{
+    height:2vw;
+    width:2vw;
+    background-color: rgb(236, 233, 255);
+    border: 1px solid rgba(100, 93, 96, 0.151);
+}
+
+.active{
+    background-color: rgba(141, 94, 252, 0.863);
+
+}
+
+.snake{
+    background-color: rgba(87, 219, 137, 0.863);
+}

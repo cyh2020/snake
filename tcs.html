@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="tcs.css"/>
+    <script src = '../jq/jquery-3.4.0.min.js'></script>
+    
+</head>
+<body>
+    <div id = 'app'>
+    </div>
+
+    <script>
+        let level = 20;
+        //创建格子
+        function init(){
+            let r = "r1"
+            let c = "c1"
+            for(let i=0;i<level;i++){
+                var rdiv = $("<div class='r'></div>")
+                r = `r${i}`//行号码
+                rdiv.addClass(r)
+                for(let j=0;j<level;j++){
+                    var content = $("<div class='c'></div>")
+                    c = `c${j}`////列号码
+                    content.addClass(c);
+                    rdiv.append(content) //行内容里面append 列内容
+                }
+
+                $("#app").append(rdiv);
+            }
+        }
+        init();
+        
+        //创建食物
+        class food_unit{
+            constructor(row,col){
+                this.row = row;
+                this.col = col;
+
+            }
+        }
+
+        class food1{
+            constructor(num){
+                this.food_set = []
+                this.food_num = num//总食物数量
+                this.init()
+                this.display_food()
+                
+            }
+
+            init(){
+                for(let i=0;i<this.food_num;i++){
+                    let num = Math.floor(Math.random() * level *level)
+                    let row = Math.floor(num/level)
+                    let col = num%level
+                    this.food_set.push(new food_unit(row,col))
+                }
+            }
+
+            //刷新食物
+            display_food(){
+                for(let i=0;i<this.food_set.length;i++){
+                    let row = `.r${this.food_set[i].row}`
+                    let col = ` .c${this.food_set[i].col}`
+                    $(row+col).addClass('active')
+                    console.log(row+col)
+                }
+            }
+
+            //食物消失方法
+            kill(index){
+                let row = `.r${this.food_set[index].row}`
+                let col = ` .c${this.food_set[index].col}`
+                $(row+col).removeClass('active')
+                this.food_set.splice(index,1)
+            }
+
+        }
+        
+        
+
+        //蛇
+        class snake_unit{
+            constructor(row,col){
+                this.row = row;
+                this.col = col;
+            }
+        }
+
+        class snake{
+            constructor(){
+                this.snake_set = []
+                this.init();
+                this.snake_direction = 0;//0123 上右下左
+                this.lastOne = this.snake_set[0]
+                this.newOne = null
+            }
+
+            init() {//初始化蛇
+                let row = 4
+                let col = 4
+                this.snake_set.push(new snake_unit(row,col))
+                this.snake_set.push(new snake_unit(row,col+1))
+                this.snake_set.push(new snake_unit(row,col+2))
+            }
+
+            re_snake(){//更新蛇一步
+                let old_first_pos = {//原来的头部
+                    x:this.snake_set[0].row,
+                    y:this.snake_set[0].col
+                }
+                let old_sec_pos = {//原来的次头部
+                    x:this.snake_set[1].row,
+                    y:this.snake_set[1].col
+                }
+                
+                let row = 0
+                let col = 0
+                function find_dir(){
+                    //找方向
+                    switch(this.snake_direction) {
+                        case 0:
+                            row = old_first_pos.x-1;
+                            col = old_first_pos.y;
+                            pd(this,row,col,0)
+                            break;
+                        case 1:
+                            row = old_first_pos.x;
+                            col = old_first_pos.y+1;
+                            pd(this,row,col,1)
+                            break;
+                        case 2:
+                            row = old_first_pos.x+1;
+                            col = old_first_pos.y;
+                            pd(this,row,col,2)
+                            break;
+                        case 3:
+                            row = old_first_pos.x;
+                            col = old_first_pos.y-1;
+                            pd(this,row,col,3)
+                            break;
+                        default:
+                            console.log("error");
+                    } 
+                }
+
+                //判断新首部方向是否合法
+                function pd(that,x,y,dr){
+                    if(x == old_sec_pos.x && y == old_sec_pos.y){
+                        switch(dr){
+                            case 0:
+                                that.snake_direction = 2;
+                                row = row+2;
+                                break;
+                            case 1:
+                                that.snake_direction = 3;
+                                col = col-2
+                                break;
+                            case 2:
+                                that.snake_direction = 0;
+                                row = row-2;
+                                break;
+                            case 3:
+                                that.snake_direction = 1;
+                                col = col+2;
+                                break;
+                        }
+
+                    }
+                }
+
+                find_dir.call(this);
+
+                //判断是否出去了
+                if(row<0){
+                    row = level-1;
+                }
+                if(row>=level){
+                    row = 0;
+                }
+                if(col<0){
+                    col = level-1;
+                }
+                if(col>=level){
+                    col = 0;
+                }
+                
+               
+                this.newOne = new snake_unit(row,col)
+                this.snake_set.unshift(this.newOne)
+
+                if(!engin.prototype.pdLonger(this,food_1)){//判断是否吃到食物,
+                    //没吃到
+                    this.lastOne = this.snake_set.pop()
+                }
+                
+            }
+
+
+            //刷新屏幕上的蛇
+            display_snake(){//删除最后一个snake_unit的显示
+                {
+                    let row = `.r${this.lastOne.row}`
+                    let col =` .c${this.lastOne.col}`
+                    $(row+col).removeClass('snake')
+                }
+                
+                //展示全部的蛇
+                this.snake_set.forEach((v)=>{  
+                    let row = `.r${v.row}`
+                    let col =` .c${v.col}`
+                    $(row+col).addClass('snake')
+                });
+            }
+        
+            
+        }
+
+        //事件绑定
+        document.onkeyup = function (event) {
+            var e = event || window.event;
+            var keyCode = e.keyCode || e.which;
+            switch (keyCode) {
+                //w
+                case 87:
+                    snake_1.snake_direction = 0
+                    break;
+                //d
+                case 68:
+                    snake_1.snake_direction = 1
+                    break;
+                //s
+                case 83:
+                    snake_1.snake_direction = 2
+                    break;
+                //a
+                case 65:
+                    snake_1.snake_direction = 3
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        
+        class engin{
+            contructor(){
+
+            }
+
+            //运行
+            run(){
+                snake_1.re_snake();//刷新蛇
+                snake_1.display_snake()//刷新屏幕上的蛇
+            }
+
+            //判断是否相交
+            pdLonger(snake,food){
+                for(let j=0;j<food.food_set.length;j++){
+                    let sx = snake.newOne.col
+                    let sy = snake.newOne.row
+                    let fx = food.food_set[j].col
+                    let fy = food.food_set[j].row
+                    if((sx === fx)&&(sy === fy)){//吃到了
+                        // console.log(i,j)
+                        food.kill(j)
+                        return true;
+                    }                       
+                }
+                return false;
+            }
+
+
+        }
+
+        
+        snake_1 = new snake();//初始化 自动调用init方法
+        food_1 = new food1(5);
+        var t1 = window.setInterval(engin.prototype.run,200);
+        // window.clearInterval(t1);
+        
+    </script>
+</body>
+</html>
